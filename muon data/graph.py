@@ -1,4 +1,6 @@
-#todo: graph time, time comparison, avg time for each column
+#todo: upper subplot x axis name not visible when saved as svg, time comparison, avg time for each column,save statistics to a txt file
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os 
@@ -8,14 +10,20 @@ from scipy.optimize import curve_fit
 def func(x, a, b, c):
     return a * np.exp(-b * x) + c
 
+def centers_from_borders(borders): #https://stackoverflow.com/questions/35544233/fit-a-curve-to-a-histogram-in-python
+    return borders[:-1] + np.diff(borders) / 2
 
+
+#histogram settings
 time_max = 100
 time_min = 8
 no_bins = 30
 
+#curve_fit histogram settings
 curve_time_min = 8
 curve_bins = 30
 
+#time histogram settings
 time_max_time_avg_mulitple = 1
 no_bins_time = 100
 
@@ -90,15 +98,10 @@ if(time_setting == 1):
 data[:] = [x / 240 for x in data]
   
 hist, bins = np.histogram(data, bins = no_bins, range = [time_min, time_max])
-#bins_array = np.array(list(range(0, 100, 5)))
-
-
-#bins = bins.astype(int)
 
 #curve fit
-curve_hist, curve_bins = np.histogram(data, bins = curve_bins, range = [curve_time_min, time_max])
 guess = np.array([a, b, c])
-popt, pcov = curve_fit(func, curve_bins[:-1], curve_hist, guess)
+popt, pcov = curve_fit(func, centers_from_borders(bins), hist, guess)
 perr = np.sqrt(np.diag(pcov))
 
 #timeless plot w/o subplots
@@ -125,13 +128,13 @@ if(time_setting == 1):
     plt.axis([xmin, xmax, ymin, ymax])    
     
     # legend
-    plt.text(round(0.4 * xmax, 0), round(0.95 * ymax, 0), "$y = ae^{-\lambda x}+c$")
+    plt.text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), "$y = ae^{-\lambda x}+c$")
     
     parameters = "$a = " + str(round(popt[0], 2)) + "; λ = " + str(round(popt[1], 4)) + "; c = " + str(round(popt[2], 2)) + "$"
-    plt.text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), parameters, fontsize = 10)
+    plt.text(round(0.4 * xmax, 0), round(0.80 * ymax, 0), parameters, fontsize = 10)
     
     parameters_perr = "$σ_a" + " = " + str(round(perr[0], 2)) + "; σ_λ = " + str(round(perr[1], 4)) + "; σ_c = " + str(round(perr[2], 2)) + "$"
-    plt.text(round(0.4 * xmax, 0), round(0.85 * ymax, 0), parameters_perr, fontsize = 10)
+    plt.text(round(0.4 * xmax, 0), round(0.70 * ymax, 0), parameters_perr, fontsize = 10)
     
     
     plt.savefig(graph_output_path, format = "svg")
@@ -161,6 +164,7 @@ if(time_setting == 2 or 3):
     axs[0].hist(data, bins) #plot histogram
     axs[0].plot(bins, func(bins, *popt), color = "darkorange", linewidth = 2) #plot fitted curve
     axs[1].hist(time_diff, time_bins) #plot time histogram
+    axs[1].set_yscale("log")
     
     axs[0].set_xlabel("Mean lifetime (us)")
     axs[0].set_ylabel("Number of decays")   
@@ -173,13 +177,13 @@ if(time_setting == 2 or 3):
     axs[0].axis([xmin, xmax, ymin, ymax])    
     
     # legend
-    axs[0].text(round(0.4 * xmax, 0), round(0.95 * ymax, 0), "$y = ae^{-\lambda x}+c$")
+    axs[0].text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), "$y = ae^{-\lambda x}+c$")
     
     parameters = "$a = " + str(round(popt[0], 2)) + "; λ = " + str(round(popt[1], 4)) + "; c = " + str(round(popt[2], 2)) + "$"
-    axs[0].text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), parameters, fontsize = 10)
+    axs[0].text(round(0.4 * xmax, 0), round(0.80 * ymax, 0), parameters, fontsize = 10)
     
     parameters_perr = "$σ_a = " + str(round(perr[0], 2)) + "; σ_λ = " + str(round(perr[1], 4)) + "; σ_c = " + str(round(perr[2], 2)) + "$"
-    axs[0].text(round(0.4 * xmax, 0), round(0.85 * ymax, 0), parameters_perr, fontsize = 10)
+    axs[0].text(round(0.4 * xmax, 0), round(0.70 * ymax, 0), parameters_perr, fontsize = 10)
     
     fig.savefig(graph_output_path, format = "svg")
     fig.show()
