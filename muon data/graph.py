@@ -20,7 +20,8 @@ time_min = 8
 no_bins = 30
 
 #curve_fit histogram settings
-curve_time_min = 8
+curve_time_min = 10
+#curve_time_max = 15 
 curve_bins = 30
 
 #time histogram settings
@@ -118,6 +119,7 @@ if(time_setting == 1):
     
     plt.hist(data, bins) #plot histogram
     plt.plot(bins, func(bins, *popt), color = "darkorange", linewidth = 2) #plot fitted curve
+    axs[0].errorbar(centers_from_borders(bins), hist, yerr = np.sqrt(hist), ls = 'none', color = 'black')
     
     plt.xlabel("Mean lifetime (us)")
     plt.ylabel("Number of decays")
@@ -128,15 +130,15 @@ if(time_setting == 1):
     plt.axis([xmin, xmax, ymin, ymax])    
     
     # legend
-    plt.text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), "$y = ae^{-\lambda x}+c$")
+    axs[0].text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), "$y = ae^{-\lambda x}+c; T_{½}\doteq $" + str(round(1/popt[1], 4)))
     
-    parameters = "$a = " + str(round(popt[0], 2)) + "; λ = " + str(round(popt[1], 4)) + "; c = " + str(round(popt[2], 2)) + "$"
+    parameters = "$a ≐ " + str(round(popt[0], 2)) + "; λ ≐ " + str(round(popt[1], 4)) + "; c ≐ " + str(round(popt[2], 2)) + "$"
     plt.text(round(0.4 * xmax, 0), round(0.80 * ymax, 0), parameters, fontsize = 10)
     
-    parameters_perr = "$σ_a" + " = " + str(round(perr[0], 2)) + "; σ_λ = " + str(round(perr[1], 4)) + "; σ_c = " + str(round(perr[2], 2)) + "$"
+    parameters_perr = "$σ_a" + " ≐ " + str(round(perr[0], 2)) + "; σ_λ ≐ " + str(round(perr[1], 4)) + "; σ_c ≐ " + str(round(perr[2], 2)) + "$"
     plt.text(round(0.4 * xmax, 0), round(0.70 * ymax, 0), parameters_perr, fontsize = 10)
     
-    
+    plt.tight_layout(rect = [0.03, 0.03, 1, 1])
     plt.savefig(graph_output_path, format = "svg")
     plt.show()
 
@@ -163,6 +165,7 @@ if(time_setting == 2 or 3):
     
     axs[0].hist(data, bins) #plot histogram
     axs[0].plot(bins, func(bins, *popt), color = "darkorange", linewidth = 2) #plot fitted curve
+    axs[0].errorbar(centers_from_borders(bins), hist, yerr = np.sqrt(hist), ls = 'none', color = 'black')
     axs[1].hist(time_diff, time_bins) #plot time histogram
     axs[1].set_yscale("log")
     
@@ -177,13 +180,14 @@ if(time_setting == 2 or 3):
     axs[0].axis([xmin, xmax, ymin, ymax])    
     
     # legend
-    axs[0].text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), "$y = ae^{-\lambda x}+c$")
+    axs[0].text(round(0.4 * xmax, 0), round(0.90 * ymax, 0), "$y = ae^{-\lambda x}+c; T_{½}\doteq $" + str(round(1/popt[1], 4)))
     
-    parameters = "$a = " + str(round(popt[0], 2)) + "; λ = " + str(round(popt[1], 4)) + "; c = " + str(round(popt[2], 2)) + "$"
+    parameters = "$a ≐ " + str(round(popt[0], 2)) + "; λ ≐ " + str(round(popt[1], 4)) + "; c ≐ " + str(round(popt[2], 2)) + "$"
     axs[0].text(round(0.4 * xmax, 0), round(0.80 * ymax, 0), parameters, fontsize = 10)
     
-    parameters_perr = "$σ_a = " + str(round(perr[0], 2)) + "; σ_λ = " + str(round(perr[1], 4)) + "; σ_c = " + str(round(perr[2], 2)) + "$"
+    parameters_perr = "$σ_a ≐ " + str(round(perr[0], 2)) + "; σ_λ ≐ " + str(round(perr[1], 4)) + "; σ_c ≐ " + str(round(perr[2], 2)) + "$"
     axs[0].text(round(0.4 * xmax, 0), round(0.70 * ymax, 0), parameters_perr, fontsize = 10)
     
+    plt.tight_layout(rect = [0.03, 0.03, 1, 1])
     fig.savefig(graph_output_path, format = "svg")
     fig.show()
