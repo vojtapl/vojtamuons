@@ -4,7 +4,7 @@ Created on Mon Dec 21 14:28:01 2020
 
 @author: Vojtěch Pluskal
 
-Does not like restarting of ESP32!!!
+Does not like restarting of ESP32!
 
 To do:
     save time at start and at the end; how?
@@ -12,13 +12,14 @@ To do:
 
 
 import serial, time
+from os import getcwd
 
 #serial_port = "COM7"
 serial_port = "/dev/ttyUSB0"
 
 
 print("Press Ctrl+C to stop.")
-
+print('Cwd is: ' + getcwd())
 #open serial port; The default is 8 data bits, no parity, one stop bit. (https://www.arduino.cc/reference/en/language/functions/communication/serial/begin/) 
 ser = serial.Serial(
     port = serial_port,
@@ -50,6 +51,7 @@ try:
             print("Current date and time =", time.ctime(time_now_epoch))
         
             data_to_save = str(serial_input) + "," + str(time_now_epoch) + ","
+            data_file.write(data_to_save)
             
 except KeyboardInterrupt:
     print(">> Ctrl+C pressed, stopped.")
